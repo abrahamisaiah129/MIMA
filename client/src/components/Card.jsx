@@ -71,6 +71,7 @@ const Card = ({
           <img
             src={imageSrc}
             alt={title}
+
             className="w-full h-full object-cover object-center mix-blend-multiply"
           />
           <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-2 py-1.5 rounded-xl flex items-center space-x-0.5 shadow-sm border border-gray-100">
