@@ -13,9 +13,10 @@ import { products } from "../data/products";
 
 const Home = ({ addToCart }) => {
   // Limited products for the "Latest Drops" section
-  const latestDrops = products.slice(0, 3);
-  // Products for "Trending Now"
-  const trendingProducts = products.slice(3, 7);
+  const latestDrops = products.slice(0, 10);
+  // Products for "Trending Now" - Reverse to show different items at top if possible, or just slice
+  // Since we only have 12 items, we'll reverse the array to make "Trending" look different from "Latest"
+  const trendingProducts = [...products].reverse().slice(0, 10);
 
   return (
     <div className="animate-fade-in">
