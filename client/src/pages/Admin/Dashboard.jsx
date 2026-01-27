@@ -17,6 +17,7 @@ import {
   CheckCircle,
   Clock,
   Edit2,
+  Menu,
 } from "lucide-react";
 import { products as initialProducts } from "../../data/products";
 
@@ -31,6 +32,7 @@ const stats = [
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("dashboard");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Mobile sidebar state
   const [products, setProducts] = useState(initialProducts);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -132,8 +134,21 @@ const AdminDashboard = () => {
   return (
     <div className="min-h-screen bg-black text-white flex font-sans">
       {/* 1. Sidebar */}
-      <aside className="w-64 bg-zinc-900 border-r border-white/10 flex flex-col fixed h-full z-20 overflow-y-auto">
-        <div className="p-8 border-b border-white/10">
+      {/* 1. Sidebar (Responsive) */}
+      {/* Mobile Backdrop */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/80 z-40 md:hidden backdrop-blur-sm"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-zinc-900 border-r border-white/10 flex flex-col transition-transform duration-300 transform ${
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } md:translate-x-0 md:static md:h-screen md:shrink-0`}
+      >
+        <div className="p-8 border-b border-white/10 flex justify-between items-center">
           <Link to="/" className="flex items-center gap-2">
             <img
               src="/MIMA-LOGO-PLACEHOLDER.png"
@@ -144,6 +159,13 @@ const AdminDashboard = () => {
               ADMIN
             </span>
           </Link>
+          {/* Close Sidebar on Mobile */}
+          <button
+            onClick={() => setIsSidebarOpen(false)}
+            className="md:hidden text-gray-400 hover:text-white"
+          >
+            <X size={20} />
+          </button>
         </div>
 
         <nav className="flex-1 p-4 space-y-2">
@@ -177,14 +199,24 @@ const AdminDashboard = () => {
       </aside>
 
       {/* 2. Main Content */}
-      <main className="flex-1 ml-64 p-8">
-        {/* Header */}
+      <main className="flex-1 p-8 w-full overflow-x-hidden h-screen overflow-y-auto relative">
+        {/* Header with Hamburger */}
         <div className="flex justify-between items-center mb-10">
-          <div>
-            <h1 className="text-3xl font-black uppercase tracking-tight">
-              {activeTab}
-            </h1>
-            <p className="text-gray-500">Welcome back, Admin.</p>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setIsSidebarOpen(true)}
+              className="md:hidden p-2 bg-zinc-900 rounded-lg text-white border border-white/10"
+            >
+              <Menu size={20} />
+            </button>
+            <div>
+              <h1 className="text-xl md:text-3xl font-black uppercase tracking-tight">
+                {activeTab}
+              </h1>
+              <p className="text-xs md:text-sm text-gray-500 hidden sm:block">
+                Welcome back, Admin.
+              </p>
+            </div>
           </div>
           <div className="flex items-center space-x-4">
             <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center border border-white/10">
