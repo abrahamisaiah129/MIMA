@@ -6,13 +6,13 @@ const SizeGuide = ({ isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-      <div 
+      <div
         className="absolute inset-0 bg-black/80 backdrop-blur-sm"
         onClick={onClose}
       />
-      
+
       <div className="relative bg-zinc-900 border border-white/10 rounded-3xl p-8 max-w-2xl w-full animate-slide-up shadow-2xl">
-        <button 
+        <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-white transition"
         >
@@ -38,54 +38,33 @@ const SizeGuide = ({ isOpen, onClose }) => {
               </tr>
             </thead>
             <tbody className="text-gray-300">
-              <tr className="border-b border-white/5 hover:bg-white/5 transition">
-                <td className="px-6 py-4 font-bold text-white">36</td>
-                <td className="px-6 py-4">6</td>
-                <td className="px-6 py-4">3.5</td>
-                <td className="px-6 py-4">23.0</td>
-              </tr>
-              <tr className="border-b border-white/5 hover:bg-white/5 transition">
-                <td className="px-6 py-4 font-bold text-white">37</td>
-                <td className="px-6 py-4">6.5</td>
-                <td className="px-6 py-4">4</td>
-                <td className="px-6 py-4">23.5</td>
-              </tr>
-              <tr className="border-b border-white/5 hover:bg-white/5 transition">
-                <td className="px-6 py-4 font-bold text-white">38</td>
-                <td className="px-6 py-4">7.5</td>
-                <td className="px-6 py-4">5</td>
-                <td className="px-6 py-4">24.0</td>
-              </tr>
-              <tr className="border-b border-white/5 hover:bg-white/5 transition">
-                <td className="px-6 py-4 font-bold text-white">39</td>
-                <td className="px-6 py-4">8.5</td>
-                <td className="px-6 py-4">6</td>
-                <td className="px-6 py-4">25.0</td>
-              </tr>
-              <tr className="border-b border-white/5 hover:bg-white/5 transition">
-                <td className="px-6 py-4 font-bold text-white">40</td>
-                <td className="px-6 py-4">9</td>
-                <td className="px-6 py-4">6.5</td>
-                <td className="px-6 py-4">25.5</td>
-              </tr>
-              <tr className="border-b border-white/5 hover:bg-white/5 transition">
-                <td className="px-6 py-4 font-bold text-white">41</td>
-                <td className="px-6 py-4">9.5</td>
-                <td className="px-6 py-4">7</td>
-                <td className="px-6 py-4">26.0</td>
-              </tr>
-              <tr className="hover:bg-white/5 transition">
-                <td className="px-6 py-4 font-bold text-white">42</td>
-                <td className="px-6 py-4">10</td>
-                <td className="px-6 py-4">7.5</td>
-                <td className="px-6 py-4">26.5</td>
-              </tr>
+              {[
+                { eu: "35", us: "5", uk: "2.5", cm: "22.5" },
+                { eu: "36", us: "6", uk: "3.5", cm: "23.0" },
+                { eu: "37", us: "6.5", uk: "4", cm: "23.5" },
+                { eu: "38", us: "7.5", uk: "5", cm: "24.0" },
+                { eu: "39", us: "8.5", uk: "6", cm: "25.0" },
+                { eu: "40", us: "9", uk: "6.5", cm: "25.5" },
+                { eu: "41", us: "9.5", uk: "7", cm: "26.0" },
+                { eu: "42", us: "10", uk: "7.5", cm: "26.5" },
+                { eu: "43", us: "10.5", uk: "8", cm: "27.5" },
+                { eu: "44", us: "12", uk: "9.5", cm: "28.5" },
+                { eu: "45", us: "13", uk: "10.5", cm: "29.5" },
+                { eu: "46", us: "14", uk: "11.5", cm: "30.5" },
+              ].map((size) => (
+                <tr key={size.eu} className="border-b border-white/5 hover:bg-white/5 transition">
+                  <td className="px-6 py-4 font-bold text-white">{size.eu}</td>
+                  <td className="px-6 py-4">{size.us}</td>
+                  <td className="px-6 py-4">{size.uk}</td>
+                  <td className="px-6 py-4">{size.cm}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
 
         <div className="mt-6 text-xs text-gray-500 text-center">
-            <p>Tip: If you are between sizes, we recommend sizing up for maximum comfort.</p>
+          <p>Tip: If you are between sizes, we recommend sizing up for maximum comfort.</p>
         </div>
       </div>
     </div>

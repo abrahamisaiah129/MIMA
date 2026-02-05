@@ -2,11 +2,17 @@ import React, { useState } from "react";
 import { Search, X, Check } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
+import { products } from "../data/products";
+
 const SearchFilter = () => {
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
-  const [activeSize, setActiveSize] = useState(null);
+
   const navigate = useNavigate();
+
+  // Extract unique categories from products
+  const uniqueCategories = [...new Set(products.map(product => product.category))].filter(Boolean);
+  const categories = ["All", ...uniqueCategories];
 
   const handleSearchKeys = (e) => {
     if (e.key === "Enter" && query.trim()) {
@@ -20,8 +26,7 @@ const SearchFilter = () => {
     navigate(cat === "All" ? "/shop" : `/shop?category=${cat}`);
   };
 
-  const categories = ["All", "Sneakers", "Heels", "Boots", "Sandals", "Flats"];
-  const sizes = ["36", "37", "38", "39", "40", "41", "42"];
+  // const categories = ["All", "Sneakers", "Heels", "Boots", "Sandals", "Flats"]; // REMOVED - Using dynamic categories
 
   return (
     <div className="w-full max-w-4xl mx-auto mb-20 px-4 relative z-10 -mt-10">
@@ -52,47 +57,26 @@ const SearchFilter = () => {
 
         {/* Filters Container */}
         <div className="space-y-4">
-          {/* Categories Items */}
-          <div className="flex flex-wrap gap-2">
-            <span className="text-xs font-bold text-gray-500 uppercase tracking-widest mr-2 self-center">
+          {/* Categories Items - Horizontal Scroll for Aesthetics */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none mask-image-gradient">
+            <span className="text-xs font-bold text-gray-500 uppercase tracking-widest mr-2 flex-shrink-0">
               Type
             </span>
             {categories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => handleCategoryClick(cat)}
-                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-300 border border-transparent ${
-                  activeCategory === cat
-                    ? "bg-white text-black shadow-lg shadow-white/10 scale-105 font-bold"
-                    : "bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white hover:border-white/10"
-                }`}
+                className={`flex-shrink-0 px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 border border-transparent whitespace-nowrap ${activeCategory === cat
+                  ? "bg-white text-black shadow-lg shadow-white/10 scale-105 font-bold"
+                  : "bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white hover:border-white/10"
+                  }`}
               >
                 {cat}
               </button>
             ))}
           </div>
 
-          <div className="h-px bg-white/5 w-full my-4" />
 
-          {/* Size Items */}
-          <div className="flex flex-wrap gap-2">
-            <span className="text-xs font-bold text-gray-500 uppercase tracking-widest mr-2 self-center">
-              Size
-            </span>
-            {sizes.map((size) => (
-              <button
-                key={size}
-                onClick={() => setActiveSize(activeSize === size ? null : size)}
-                className={`w-10 h-10 rounded-full text-sm font-medium flex items-center justify-center transition-all duration-300 border ${
-                  activeSize === size
-                    ? "bg-white text-black border-white shadow-lg scale-105 font-bold"
-                    : "bg-transparent text-gray-400 border-white/10 hover:border-white/30 hover:text-white hover:bg-white/5"
-                }`}
-              >
-                {size}
-              </button>
-            ))}
-          </div>
         </div>
       </div>
     </div>

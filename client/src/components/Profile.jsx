@@ -1,7 +1,28 @@
-import React from "react";
-import { User, Mail, Phone, MapPin, Save } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { User, Mail, Phone, MapPin, Save, Globe, Check } from "lucide-react";
+import { profile } from "../data/profile";
+import { parsePhoneNumber } from "libphonenumber-js";
 
 const Profile = () => {
+  const [country, setCountry] = useState("Loading...");
+
+  useEffect(() => {
+    try {
+      // Defaulting to NG for parsing if not international format, assuming user base
+      const phoneNumber = parsePhoneNumber(profile.phone, "NG");
+      if (phoneNumber && phoneNumber.country) {
+        // Convert country code (e.g., 'NG') to full name (e.g., 'Nigeria')
+        const regionNames = new Intl.DisplayNames(['en'], { type: 'region' });
+        setCountry(regionNames.of(phoneNumber.country));
+      } else {
+        setCountry("Nigeria"); // Fallback
+      }
+    } catch (error) {
+      // If parsing fails, fall back to default
+      setCountry("Nigeria");
+    }
+  }, []);
+
   return (
     <div className="max-w-4xl mx-auto p-6 animate-fade-in">
       <h1 className="text-3xl font-black text-white mb-8 uppercase tracking-tight">
@@ -10,12 +31,12 @@ const Profile = () => {
 
       <div className="bg-zinc-900 rounded-3xl p-8 border border-white/10 shadow-xl">
         <div className="flex items-center space-x-6 mb-8">
-          <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center text-black font-bold text-2xl">
-            AB
+          <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center text-black font-bold text-2xl overflow-hidden">
+            {profile.firstname[0].toUpperCase()}{profile.lastname[0].toUpperCase()}
           </div>
           <div>
-            <h2 className="text-xl font-bold text-white">Abraham Isaiah</h2>
-            <p className="text-gray-400 text-sm">Member since 2025</p>
+            <h2 className="text-xl font-bold text-white">{profile.firstname} {profile.lastname}</h2>
+            <p className="text-gray-400 text-sm">Member since {profile.memberSince}</p>
           </div>
         </div>
 
@@ -31,8 +52,9 @@ const Profile = () => {
               />
               <input
                 type="text"
-                defaultValue="Abraham Isaiah"
+                defaultValue={`${profile.firstname} ${profile.lastname}`}
                 className="w-full pl-12 pr-4 py-3 bg-black border border-white/10 rounded-xl focus:border-white focus:outline-none font-bold text-white transition-colors"
+                readOnly
               />
             </div>
           </div>
@@ -48,7 +70,7 @@ const Profile = () => {
               />
               <input
                 type="email"
-                defaultValue="abraham@example.com"
+                defaultValue={profile.email}
                 className="w-full pl-12 pr-4 py-3 bg-black border border-white/10 rounded-xl focus:border-white focus:outline-none font-bold text-white transition-colors"
                 readOnly
               />
@@ -66,8 +88,27 @@ const Profile = () => {
               />
               <input
                 type="tel"
-                defaultValue="0913 226 0101"
+                defaultValue={profile.phone}
                 className="w-full pl-12 pr-4 py-3 bg-black border border-white/10 rounded-xl focus:border-white focus:outline-none font-bold text-white transition-colors"
+                readOnly
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">
+              Country
+            </label>
+            <div className="relative">
+              <Globe
+                size={18}
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
+              />
+              <input
+                type="text"
+                value={country}
+                className="w-full pl-12 pr-4 py-3 bg-black border border-white/10 rounded-xl focus:border-white focus:outline-none font-bold text-white transition-colors"
+                readOnly
               />
             </div>
           </div>
@@ -83,9 +124,25 @@ const Profile = () => {
               />
               <input
                 type="text"
-                defaultValue="Lagos, Nigeria"
+                defaultValue={profile.address}
                 className="w-full pl-12 pr-4 py-3 bg-black border border-white/10 rounded-xl focus:border-white focus:outline-none font-bold text-white transition-colors"
               />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">
+              Newsletter
+            </label>
+            <div className="relative">
+              <div className="flex items-center space-x-3 w-full pl-4 pr-4 py-3 bg-black border border-white/10 rounded-xl">
+                <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${profile.subscribed ? 'bg-green-500 border-green-500' : 'border-gray-500'}`}>
+                  {profile.subscribed && <Check size={14} className="text-black stroke-3" />}
+                </div>
+                <span className="text-white font-bold">
+                  {profile.subscribed ? "Subscribed to Don't Miss the Drop" : "Not Subscribed"}
+                </span>
+              </div>
             </div>
           </div>
 
@@ -96,8 +153,8 @@ const Profile = () => {
             </button>
           </div>
         </form>
-      </div>
-    </div>
+      </div >
+    </div >
   );
 };
 

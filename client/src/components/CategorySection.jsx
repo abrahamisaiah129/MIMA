@@ -2,36 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { ArrowUpRight } from "lucide-react";
 
-const categories = [
-  {
-    id: "heels",
-    title: "Luxury Heels",
-    image:
-      "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?q=80&w=800&auto=format&fit=crop",
-    count: "24 Items",
-  },
-  {
-    id: "sneakers",
-    title: "Street Sneakers",
-    image:
-      "https://images.unsplash.com/photo-1552346154-21d32810aba3?q=80&w=800&auto=format&fit=crop",
-    count: "42 Items",
-  },
-  {
-    id: "boots",
-    title: "Premium Boots",
-    image:
-      "https://images.unsplash.com/photo-1608256246200-53e635b5b65f?q=80&w=800&auto=format&fit=crop",
-    count: "18 Items",
-  },
-  {
-    id: "flats",
-    title: "Comfort Flats",
-    image:
-      "https://images.unsplash.com/photo-1535043934128-cf0b28d52f95?q=80&w=800&auto=format&fit=crop",
-    count: "12 Items",
-  },
-];
+import { categories } from "../data/pagedata";
 
 const CategorySection = () => {
   return (

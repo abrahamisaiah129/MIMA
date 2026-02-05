@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Star, Minus, Plus, Check } from "lucide-react";
 
+const DEFAULT_SIZES = ["36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46"];
+
 const Card = ({
   id,
   title = "Women Blouse",
@@ -16,11 +18,40 @@ const Card = ({
     { name: "Black", hex: "#111827" },
   ],
   addToCart,
+  cartItems = [],
+  removeFromCart,
+  preSelectedSize,
+  isWishlisted,
+  toggleWishlist,
 }) => {
+  // Determine if we should show all sizes or specific sizes
+  const sizesToDisplay = sizes.includes("ALL") ? DEFAULT_SIZES : sizes;
+
+  // Initial size logic: 
+  // 1. If preSelectedSize is passed AND it is valid for this product, use it.
+  // 2. Otherwise default to the first available size.
+  const initialSize = (preSelectedSize && sizesToDisplay.includes(preSelectedSize))
+    ? preSelectedSize
+    : sizesToDisplay[0];
+
   // State for interactive elements
   const [quantity, setQuantity] = useState(1);
-  const [selectedSize, setSelectedSize] = useState(sizes[0]);
+  const [selectedSize, setSelectedSize] = useState(initialSize);
   const [selectedColor, setSelectedColor] = useState(colors[0]?.hex);
+
+  // Update selected size if preSelectedSize changes (e.g. user changes filter while viewing)
+  React.useEffect(() => {
+    if (preSelectedSize && sizesToDisplay.includes(preSelectedSize)) {
+      setSelectedSize(preSelectedSize);
+    }
+  }, [preSelectedSize, sizesToDisplay]);
+
+  // Check if item is in cart
+  const isInCart = cartItems.some(item =>
+    item.id === id &&
+    item.selectedSize === selectedSize &&
+    item.selectedColor === selectedColor
+  );
 
   // Handlers
   const handleDecrement = () => {
@@ -30,22 +61,36 @@ const Card = ({
     setQuantity(quantity + 1);
   };
 
-  const handleAddToCart = () => {
-    if (addToCart) {
-      addToCart({
-        id,
-        title,
-        price,
-        imageSrc,
-        quantity,
-        selectedSize,
-        selectedColor,
-      });
+  const handleAction = () => {
+    if (isInCart) {
+      if (removeFromCart) {
+        removeFromCart(id, selectedSize, selectedColor);
+      }
+    } else {
+      if (addToCart) {
+        addToCart({
+          id,
+          title,
+          price,
+          imageSrc,
+          quantity,
+          selectedSize,
+          selectedColor,
+        });
+      }
+    }
+  };
+
+  const handleWishlistClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (toggleWishlist) {
+      toggleWishlist();
     }
   };
 
   return (
-    <div className="bg-black/40 backdrop-blur-md rounded-2xl shadow-xl overflow-hidden w-full max-w-[190px] transition-transform hover:-translate-y-1 duration-300 border border-white/10 relative group mx-auto">
+    <div className="bg-black/40 backdrop-blur-md rounded-2xl shadow-xl overflow-hidden w-full max-w-none sm:max-w-[190px] transition-transform hover:-translate-y-1 duration-300 border border-white/10 relative group mx-auto">
       {/* Top Decorative Arc (Matches the card style) */}
 
       <Link
@@ -58,9 +103,30 @@ const Card = ({
           className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-700"
         />
         {/* Rating Badge - Absolute Top Right */}
-        <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-md px-1.5 py-0.5 rounded-full flex items-center space-x-1 border border-white/10">
-          <Star size={8} className="text-yellow-400 fill-yellow-400" />
-          <span className="text-[9px] font-bold text-white">{rating}.0</span>
+        <div className="absolute top-2 right-2 flex flex-col items-end gap-2">
+          <div className="bg-black/60 backdrop-blur-md px-1.5 py-0.5 rounded-full flex items-center space-x-1 border border-white/10">
+            <Star size={8} className="text-yellow-400 fill-yellow-400" />
+            <span className="text-[9px] font-bold text-white">{rating}.0</span>
+          </div>
+
+          <button
+            onClick={handleWishlistClick}
+            className={`w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-md border transition-all ${isWishlisted ? 'bg-red-600 border-red-600 text-white' : 'bg-black/40 border-white/10 text-white hover:bg-white hover:text-black'}`}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill={isWishlisted ? "currentColor" : "none"}
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+            </svg>
+          </button>
         </div>
       </Link>
 
@@ -74,7 +140,7 @@ const Card = ({
           <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-0.5 truncate">
             {title}
           </h3>
-          <p className="text-[9px] text-gray-500 font-medium leading-tight line-clamp-1">
+          <p className="text-[10px] text-gray-500 font-medium leading-tight line-clamp-1">
             {description}
           </p>
         </Link>
@@ -88,51 +154,28 @@ const Card = ({
         </div>
 
         {/* 4. Size & Quantity Row */}
-        {/* Size & Qty - Grid Layout */}
-        <div className="grid grid-cols-2 gap-2">
-          {/* Size Dropdown-like */}
-          <div className="space-y-0.5">
-            <span className="text-[8px] font-bold text-gray-500 uppercase tracking-widest block text-center">
-              Size
-            </span>
-            <div className="flex flex-wrap justify-center gap-0.5">
-              {sizes.slice(0, 3).map((size) => (
-                <button
-                  key={size}
-                  onClick={() => setSelectedSize(size)}
-                  className={`h-5 w-5 flex items-center justify-center text-[9px] font-bold rounded-full transition-all border ${
-                    selectedSize === size
-                      ? "bg-white text-black border-white"
-                      : "text-gray-400 border-white/10 hover:border-white"
-                  }`}
-                >
-                  {size}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Quantity */}
-          <div className="space-y-0.5">
-            <span className="text-[8px] font-bold text-gray-500 uppercase tracking-widest block text-center">
+        {/* Quantity Controls - Centered and Spaced */}
+        <div className="flex justify-center py-1">
+          <div className="space-y-1">
+            <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest block text-center">
               Qty
             </span>
-            <div className="flex items-center justify-center bg-white/5 rounded-full px-1.5 py-0.5 border border-white/10 w-fit mx-auto">
+            <div className="flex items-center justify-center bg-white/5 rounded-full px-2 py-1 border border-white/10 w-fit mx-auto gap-2">
               <button
                 onClick={handleDecrement}
                 disabled={quantity <= 1}
-                className="p-0.5 hover:text-white text-gray-400 transition disabled:opacity-30"
+                className="p-1 hover:text-white text-gray-400 transition disabled:opacity-30 flex items-center justify-center"
               >
-                <Minus size={8} />
+                <Minus size={14} />
               </button>
-              <span className="text-[9px] font-bold text-white w-3 text-center">
+              <span className="text-[12px] font-bold text-white w-5 text-center">
                 {quantity}
               </span>
               <button
                 onClick={handleIncrement}
-                className="p-0.5 hover:text-white text-gray-400 transition"
+                className="p-1 hover:text-white text-gray-400 transition flex items-center justify-center"
               >
-                <Plus size={8} />
+                <Plus size={14} />
               </button>
             </div>
           </div>
@@ -141,10 +184,13 @@ const Card = ({
         {/* 6. Action Button */}
         {/* Action Button - Sleek */}
         <button
-          onClick={handleAddToCart}
-          className="w-full bg-white hover:bg-gray-200 text-black text-[10px] font-black py-2 rounded-full uppercase tracking-[0.15em] transition-all active:scale-95"
+          onClick={handleAction}
+          className={`w-full text-black text-[11px] font-black py-3 rounded-full uppercase tracking-[0.15em] transition-all active:scale-95 ${isInCart
+            ? "bg-red-500 hover:bg-red-600 text-white"
+            : "bg-white hover:bg-gray-200"
+            }`}
         >
-          Add to Bag
+          {isInCart ? "Remove" : "Add to Bag"}
         </button>
       </div>
     </div>

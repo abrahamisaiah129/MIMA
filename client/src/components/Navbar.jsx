@@ -42,6 +42,12 @@ const ShoppingBag = (props) => (
   </IconWrapper>
 );
 
+const Heart = (props) => (
+  <IconWrapper {...props}>
+    <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+  </IconWrapper>
+);
+
 const User = (props) => (
   <IconWrapper {...props}>
     <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
@@ -85,9 +91,11 @@ const Home = (props) => (
   </IconWrapper>
 );
 
-const Navbar = ({ cartCount = 0 }) => {
+import { profile } from "../data/profile";
+
+const Navbar = ({ cartCount = 0, wishlistCount = 0 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [walletBalance, setWalletBalance] = useState(50000); // Example State: ₦50,000
+  const [walletBalance, setWalletBalance] = useState(profile.balance); // Initial State from profile data
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
@@ -137,9 +145,8 @@ const Navbar = ({ cartCount = 0 }) => {
 
   return (
     <header
-      className={`fixed w-full top-0 z-50 transition-transform duration-300 ease-in-out ${
-        isVisible ? "translate-y-0" : "-translate-y-full"
-      }`}
+      className={`fixed w-full top-0 z-50 transition-transform duration-300 ease-in-out ${isVisible ? "translate-y-0" : "-translate-y-full"
+        }`}
     >
       <style>{`
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -154,7 +161,7 @@ const Navbar = ({ cartCount = 0 }) => {
       `}</style>
       {/* 1. Top Bar - "Slay on a Budget" Tagline */}
       <div className="bg-zinc-900 text-white/80 text-xs font-bold tracking-[0.2em] text-center py-2 uppercase border-b border-zinc-800">
-        Slay on a Budget with MIMA
+        Slay {/* on a Budget */} with MIMA
       </div>
 
       {/* 2. Main Navigation Bar */}
@@ -176,11 +183,11 @@ const Navbar = ({ cartCount = 0 }) => {
               to="/"
               className="shrink-0 flex flex-col items-center justify-center cursor-pointer"
             >
-              {/* Replace this text with your generated Logo Image if preferred */}
+              {/* MIMA Logo */}
               <img
-                src="/MIMA-LOGO-PLACEHOLDER.png"
+                src="/MIMA_New.png"
                 alt="MIMA Logo"
-                className="h-12 w-auto object-contain filter invert brightness-0"
+                className="h-12 w-12 object-contain"
               />
             </Link>
 
@@ -188,27 +195,13 @@ const Navbar = ({ cartCount = 0 }) => {
             <div className="hidden md:flex space-x-8 items-center">
               <Link
                 to="/"
-                className={`transition-colors ${
-                  location.pathname === "/"
-                    ? "text-white"
-                    : "text-gray-400 hover:text-white"
-                }`}
+                className={`transition-colors ${location.pathname === "/"
+                  ? "text-white"
+                  : "text-gray-400 hover:text-white"
+                  }`}
               >
                 <Home size={20} />
               </Link>
-              {categories.map((item) => (
-                <Link
-                  key={item}
-                  to={`/shop?category=${item}`}
-                  className={`text-sm font-medium hover:underline underline-offset-4 decoration-white/50 transition-all duration-300 uppercase tracking-wide ${
-                    isCategoryActive(item)
-                      ? "text-white font-bold"
-                      : "text-gray-400 hover:text-white"
-                  }`}
-                >
-                  {item}
-                </Link>
-              ))}
             </div>
 
             {/* Right Side Actions: Wallet, Search, Cart */}
@@ -297,6 +290,16 @@ const Navbar = ({ cartCount = 0 }) => {
                 <User size={22} strokeWidth={1.5} />
               </Link>
 
+              {/* Wishlist Icon */}
+              <Link to="/wishlist" className="relative cursor-pointer group text-gray-400 hover:text-white transition">
+                <Heart size={22} strokeWidth={1.5} />
+                {wishlistCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full">
+                    {wishlistCount}
+                  </span>
+                )}
+              </Link>
+
               {/* Cart Icon with Badge */}
               <Link to="/cart" className="relative cursor-pointer group">
                 <ShoppingBag
@@ -331,32 +334,55 @@ const Navbar = ({ cartCount = 0 }) => {
               <Link
                 to="/"
                 onClick={() => setIsMenuOpen(false)}
-                className={`block px-3 py-3 text-base font-medium rounded-md transition ${
-                  location.pathname === "/"
-                    ? "text-white bg-zinc-900"
-                    : "text-gray-400 hover:text-white hover:bg-zinc-900"
-                }`}
+                className={`block px-3 py-3 text-base font-medium rounded-md transition ${location.pathname === "/"
+                  ? "text-white bg-zinc-900"
+                  : "text-gray-400 hover:text-white hover:bg-zinc-900"
+                  }`}
               >
                 Home
               </Link>
+              <Link
+                to="/wishlist"
+                onClick={() => setIsMenuOpen(false)}
+                className={`block px-3 py-3 text-base font-medium rounded-md transition ${location.pathname === "/wishlist"
+                  ? "text-white bg-zinc-900"
+                  : "text-gray-400 hover:text-white hover:bg-zinc-900"
+                  }`}
+              >
+                Wishlist {wishlistCount > 0 && `(${wishlistCount})`}
+              </Link>
+            </div>
+          </div>
+        )}
 
-              {categories.map((item) => (
+        {/* 3. Secondary Category Pill Bar - Scrollable */}
+        <div className="border-t border-white/5 bg-black/50 backdrop-blur-md">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center gap-4 overflow-x-auto py-3 no-scrollbar scroll-smooth">
+              <Link
+                to="/"
+                className={`shrink-0 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide border transition-all ${location.pathname === "/" && !searchParams.get("category")
+                  ? "bg-white text-black border-white"
+                  : "bg-transparent text-gray-400 border-white/10 hover:border-white hover:text-white"
+                  }`}
+              >
+                All
+              </Link>
+              {categories.filter(c => c !== "All").map((item) => (
                 <Link
                   key={item}
                   to={`/shop?category=${item}`}
-                  onClick={() => setIsMenuOpen(false)}
-                  className={`block px-3 py-3 text-base font-medium rounded-md transition ${
-                    isCategoryActive(item)
-                      ? "text-white bg-zinc-900"
-                      : "text-gray-400 hover:text-white hover:bg-zinc-900"
-                  }`}
+                  className={`shrink-0 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide border transition-all ${isCategoryActive(item)
+                    ? "bg-white text-black border-white"
+                    : "bg-transparent text-gray-400 border-white/10 hover:border-white hover:text-white"
+                    }`}
                 >
                   {item}
                 </Link>
               ))}
             </div>
           </div>
-        )}
+        </div>
       </nav>
     </header>
   );

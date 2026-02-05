@@ -8,32 +8,9 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
-const slides = [
-  {
-    id: 1,
-    title: "MONOCHROME\nLUXURY",
-    subtitle: "New Collection 2026",
-    image:
-      "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=2000&auto=format&fit=crop",
-    align: "left",
-  },
-  {
-    id: 2,
-    title: "URBAN\nMINIMALISM",
-    subtitle: "Streetwear Redefined",
-    image:
-      "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?q=80&w=2000&auto=format&fit=crop",
-    align: "center",
-  },
-  {
-    id: 3,
-    title: "TIMELESS\nELEGANCE",
-    subtitle: "Step Into the Future",
-    image:
-      "https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=2000&auto=format&fit=crop",
-    align: "right",
-  },
-];
+import { heroSlides } from "../data/pagedata";
+
+const slides = heroSlides;
 
 const HeroSlider = () => {
   const [current, setCurrent] = useState(0);
@@ -65,9 +42,8 @@ const HeroSlider = () => {
       {slides.map((slide, index) => (
         <div
           key={slide.id}
-          className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-            index === current ? "opacity-100 z-10" : "opacity-0 z-0"
-          }`}
+          className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === current ? "opacity-100 z-10" : "opacity-0 z-0"
+            }`}
         >
           {/* Background Image */}
           <div className="absolute inset-0">
@@ -128,11 +104,10 @@ const HeroSlider = () => {
                 setCurrent(idx);
                 setIsPlaying(false);
               }}
-              className={`h-1 rounded-full transition-all duration-300 ${
-                idx === current
-                  ? "w-12 bg-white"
-                  : "w-4 bg-white/30 hover:bg-white/60"
-              }`}
+              className={`h-1 rounded-full transition-all duration-300 ${idx === current
+                ? "w-12 bg-white"
+                : "w-4 bg-white/30 hover:bg-white/60"
+                }`}
             />
           ))}
         </div>

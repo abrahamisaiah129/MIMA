@@ -8,40 +8,13 @@ import {
 import WalletTransaction from "./WalletTransaction";
 import AddFundsForm from "./AddFundsForm";
 
+import { profile } from "../data/profile";
+
 const Wallet = () => {
   const [showAddFunds, setShowAddFunds] = useState(false);
 
   // Mock Data
-  const transactions = [
-    {
-      id: 1,
-      type: "DEPOSIT",
-      amount: 50000,
-      date: "Oct 24, 2025",
-      status: "Success",
-    },
-    {
-      id: 2,
-      type: "PURCHASE",
-      amount: 12500,
-      date: "Oct 22, 2025",
-      status: "Success",
-    },
-    {
-      id: 3,
-      type: "PURCHASE",
-      amount: 8500,
-      date: "Oct 20, 2025",
-      status: "Success",
-    },
-    {
-      id: 4,
-      type: "DEPOSIT",
-      amount: 20000,
-      date: "Oct 15, 2025",
-      status: "Success",
-    },
-  ];
+  const transactions = profile.transactions;
 
   return (
     <div className="bg-zinc-900 rounded-2xl shadow-sm border border-zinc-800 overflow-hidden">
@@ -56,7 +29,7 @@ const Wallet = () => {
               <p className="text-gray-400 text-sm font-medium uppercase tracking-wider mb-1">
                 Total Balance
               </p>
-              <h2 className="text-4xl font-black tracking-tight">₦50,000.00</h2>
+              <h2 className="text-4xl font-black tracking-tight">₦{profile.balance.toLocaleString()}</h2>
             </div>
             <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center text-white">
               <WalletIcon size={24} />

@@ -1,6 +1,6 @@
 import React from "react";
 
-const Filter = ({ categories, selectedCategory, onSelectCategory, priceRange, setPriceRange }) => {
+const Filter = ({ categories, selectedCategory, onSelectCategory, priceRange, setPriceRange, sizes, selectedSize, onSelectSize }) => {
   return (
     <div className="space-y-8">
       {/* Categories */}
@@ -32,8 +32,41 @@ const Filter = ({ categories, selectedCategory, onSelectCategory, priceRange, se
         </div>
       </div>
 
+      {/* Sizes */}
+      {sizes && sizes.length > 0 && (
+        <div>
+          <h3 className="text-lg font-bold text-white mb-4 uppercase tracking-wider">
+            Filter by Size
+          </h3>
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => onSelectSize("All")}
+              className={`px-3 py-1 text-xs font-bold rounded-full border transition-all ${selectedSize === "All"
+                  ? "bg-white text-black border-white"
+                  : "text-gray-400 border-white/10 hover:border-white hover:text-white"
+                }`}
+            >
+              All
+            </button>
+            {sizes.map((size) => (
+              <button
+                key={size}
+                onClick={() => onSelectSize(size)}
+                className={`px-3 py-1 text-xs font-bold rounded-full border transition-all ${selectedSize === size
+                    ? "bg-white text-black border-white"
+                    : "text-gray-400 border-white/10 hover:border-white hover:text-white"
+                  }`}
+              >
+                {size}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Price Range */}
       <div>
+
         <h3 className="text-lg font-bold text-white mb-4 uppercase tracking-wider">
           Max Price
         </h3>

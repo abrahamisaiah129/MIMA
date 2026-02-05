@@ -1,7 +1,7 @@
 import React from "react";
 import Card from "./Card"; // Updated import based on your list
 
-const ProductGrid = ({ products, addToCart, className = "" }) => {
+const ProductGrid = ({ products, addToCart, cartItems, removeFromCart, className = "", preSelectedSize, wishlistItems = [], toggleWishlist }) => {
   return (
     <div
       className={`grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 justify-items-center ${className}`}
@@ -22,6 +22,11 @@ const ProductGrid = ({ products, addToCart, className = "" }) => {
             sizes={product.sizes}
             colors={product.colors}
             addToCart={addToCart}
+            cartItems={cartItems}
+            removeFromCart={removeFromCart}
+            preSelectedSize={preSelectedSize}
+            isWishlisted={wishlistItems.some(item => item.id === product.id)}
+            toggleWishlist={() => toggleWishlist(product)}
           />
         </div>
       ))}

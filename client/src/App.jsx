@@ -2,25 +2,60 @@ import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-import Newsletter from "./components/Newsletter";
+
 import Wallet from "./components/Wallet";
 import Cart from "./components/Cart";
 import Profile from "./components/Profile";
+import Loader from "./components/Loader";
 import LoginForm from "./components/LoginForm";
 import RegisterForm from "./components/RegisterForm";
 import ForgotPassword from "./components/ForgotPassword";
 import ProductDetails from "./components/ProductDetails";
 import CheckoutForm from "./components/CheckoutForm";
 import WhatsAppButton from "./components/WhatsAppButton"; // Updated import name
+import ScrollToTop from "./components/ScrollToTop";
+import Wishlist from "./components/Wishlist";
 import Home from "./pages/Home";
 import Shop from "./pages/Shop";
-import AdminLogin from "./pages/Admin/Login";
-import AdminDashboard from "./pages/Admin/Dashboard";
+
 import TrackOrder from "./pages/TrackOrder";
 
+import { profile } from "./data/profile"; // Import profile data
+import { products } from "./data/products"; // Import products data
+
 function App() {
-  const [cartItems, setCartItems] = useState([]);
-  const [wishlistItems, setWishlistItems] = useState([]);
+
+
+  // Initialize wishlist from profile data IDs
+  const initialWishlist = profile.wishlist.map(id => products.find(p => p.id === id)).filter(Boolean);
+
+  // Initialize cart from profile data IDs 
+  const initialCart = profile.cart.map(id => {
+    const product = products.find(p => p.id === id);
+    if (!product) return null;
+    return {
+      ...product,
+      quantity: 1,
+      selectedSize: product.sizes && product.sizes.length > 0 ? (product.sizes.includes("ALL") ? "36" : product.sizes[0]) : "M",
+      selectedColor: product.colors && product.colors.length > 0 ? product.colors[0].hex : "#000000"
+    }
+  }).filter(Boolean);
+
+  const [cartItems, setCartItems] = useState(initialCart);
+  const [wishlistItems, setWishlistItems] = useState(initialWishlist);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Simulate initial load or hydration
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 2000); // 2 seconds delay
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return <Loader />;
+  }
 
   // Wishlist Logic
   const toggleWishlist = (product) => {
@@ -83,21 +118,24 @@ function App() {
 
   return (
     <Router>
+      <ScrollToTop />
       <div className="min-h-screen flex flex-col bg-black font-sans text-white">
         <Navbar
           cartCount={cartItems.length}
           wishlistCount={wishlistItems.length}
         />
 
-        <main className="grow pt-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+        <main className="grow pt-48 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
           <Routes>
-            <Route path="/" element={<Home addToCart={addToCart} />} />
-            <Route path="/shop" element={<Shop addToCart={addToCart} />} />
+            <Route path="/" element={<Home addToCart={addToCart} cartItems={cartItems} removeFromCart={removeFromCart} wishlistItems={wishlistItems} toggleWishlist={toggleWishlist} />} />
+            <Route path="/shop" element={<Shop addToCart={addToCart} cartItems={cartItems} removeFromCart={removeFromCart} wishlistItems={wishlistItems} toggleWishlist={toggleWishlist} />} />
             <Route
               path="/product/:id"
               element={
                 <ProductDetails
                   addToCart={addToCart}
+                  cartItems={cartItems}
+                  removeFromCart={removeFromCart}
                   wishlistItems={wishlistItems}
                   toggleWishlist={toggleWishlist}
                 />
@@ -114,6 +152,7 @@ function App() {
               }
             />
             <Route path="/checkout" element={<CheckoutForm />} />
+            <Route path="/wishlist" element={<Wishlist wishlistItems={wishlistItems} removeFromWishlist={toggleWishlist} addToCart={addToCart} cartItems={cartItems} removeFromCart={removeFromCart} />} />
             <Route path="/wallet" element={<Wallet />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/login" element={<LoginForm />} />
@@ -121,15 +160,12 @@ function App() {
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/track-order" element={<TrackOrder />} />
 
-            {/* ADMIN ROUTES */}
-            <Route path="/admin" element={<AdminLogin />} />
-            <Route path="/admin/login" element={<AdminLogin />} />
-            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+
           </Routes>
         </main>
 
         <WhatsAppButton />
-        <Newsletter />
+
         <Footer />
       </div>
     </Router>

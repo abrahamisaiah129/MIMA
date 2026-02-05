@@ -16,7 +16,7 @@ import ProductReviews from "./ProductReviews";
 import RelatedProducts from "./RelatedProducts";
 import SizeGuide from "./SizeGuide";
 
-const ProductDetails = ({ addToCart, wishlistItems = [], toggleWishlist }) => {
+const ProductDetails = ({ addToCart, cartItems = [], removeFromCart, wishlistItems = [], toggleWishlist }) => {
   const { id } = useParams();
   const product = products.find((p) => p.id === parseInt(id));
 
@@ -30,6 +30,13 @@ const ProductDetails = ({ addToCart, wishlistItems = [], toggleWishlist }) => {
   const isWishlisted = wishlistItems.some((item) => item.id === product?.id);
   const stockLevel = React.useMemo(() => Math.floor(Math.random() * 8) + 2, []); // Random stock 2-10
 
+  // Check if item is in cart
+  const isInCart = cartItems.some(item =>
+    item.id === product?.id &&
+    item.selectedSize === selectedSize &&
+    item.selectedColor === selectedColor
+  );
+
   if (!product) {
     return (
       <div className="text-center py-20 text-xl font-bold text-white">
@@ -38,8 +45,14 @@ const ProductDetails = ({ addToCart, wishlistItems = [], toggleWishlist }) => {
     );
   }
 
-  const handleAddToCart = () => {
-    addToCart({ ...product, quantity, selectedSize, selectedColor });
+  const handleAction = () => {
+    if (isInCart) {
+      if (removeFromCart) {
+        removeFromCart(product.id, selectedSize, selectedColor);
+      }
+    } else {
+      addToCart({ ...product, quantity, selectedSize, selectedColor });
+    }
   };
 
   return (
@@ -131,11 +144,10 @@ const ProductDetails = ({ addToCart, wishlistItems = [], toggleWishlist }) => {
                     key={color.hex}
                     onClick={() => setSelectedColor(color.hex)}
                     style={{ backgroundColor: color.hex }}
-                    className={`w-10 h-10 rounded-full transition-all relative ${
-                      selectedColor === color.hex
-                        ? "ring-2 ring-offset-4 ring-offset-black ring-white scale-110"
-                        : "hover:scale-110 opacity-70 hover:opacity-100"
-                    }`}
+                    className={`w-10 h-10 rounded-full transition-all relative ${selectedColor === color.hex
+                      ? "ring-2 ring-offset-4 ring-offset-black ring-white scale-110"
+                      : "hover:scale-110 opacity-70 hover:opacity-100"
+                      }`}
                   />
                 ))}
               </div>
@@ -154,20 +166,21 @@ const ProductDetails = ({ addToCart, wishlistItems = [], toggleWishlist }) => {
                   <Ruler size={14} /> Size Guide
                 </button>
               </div>
-              <div className="flex flex-wrap gap-3">
-                {product.sizes.map((size) => (
-                  <button
-                    key={size}
-                    onClick={() => setSelectedSize(size)}
-                    className={`h-12 w-16 rounded-xl flex items-center justify-center font-bold text-sm transition-all border ${
-                      selectedSize === size
-                        ? "bg-white text-black border-white shadow-lg shadow-white/10 scale-105"
-                        : "bg-transparent border-white/20 text-gray-400 hover:border-white hover:text-white"
-                    }`}
-                  >
-                    {size}
-                  </button>
-                ))}
+              <div className="relative">
+                <select
+                  value={selectedSize}
+                  onChange={(e) => setSelectedSize(e.target.value)}
+                  className="w-full bg-zinc-900 border border-white/20 text-white text-sm font-bold uppercase tracking-wider rounded-xl py-4 px-4 focus:outline-none focus:border-white appearance-none cursor-pointer hover:border-white/40 transition"
+                >
+                  {product.sizes.map((size) => (
+                    <option key={size} value={size}>
+                      Size {size}
+                    </option>
+                  ))}
+                </select>
+                <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-400">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+                </div>
               </div>
             </div>
           </div>
@@ -195,10 +208,13 @@ const ProductDetails = ({ addToCart, wishlistItems = [], toggleWishlist }) => {
 
             {/* Add to Cart */}
             <button
-              onClick={handleAddToCart}
-              className="flex-1 bg-white hover:bg-gray-200 text-black rounded-xl font-black uppercase tracking-[0.2em] transition-all active:scale-[0.98]"
+              onClick={handleAction}
+              className={`flex-1 rounded-xl font-black uppercase tracking-[0.2em] transition-all active:scale-[0.98] ${isInCart
+                  ? "bg-red-500 hover:bg-red-600 text-white"
+                  : "bg-white hover:bg-gray-200 text-black"
+                }`}
             >
-              Add to Bag
+              {isInCart ? "Remove from Bag" : "Add to Bag"}
             </button>
           </div>
 

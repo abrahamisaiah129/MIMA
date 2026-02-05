@@ -10,9 +10,9 @@ const Footer = () => {
           {/* Brand Column */}
           <div className="col-span-1 md:col-span-1">
             <img
-              src="/MIMA-LOGO-PLACEHOLDER.png"
+              src="/MIMA_New.png"
               alt="MIMA Logo"
-              className="h-10 w-auto mb-6 filter invert brightness-0"
+              className="h-12 w-12 object-contain mb-6"
             />
             <p className="text-gray-500 text-sm leading-relaxed mb-6">
               Premium footwear designed for comfort, style, and confidence. Slay

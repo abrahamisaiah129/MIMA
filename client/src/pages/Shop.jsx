@@ -6,14 +6,16 @@ import ProductGrid from "../components/ProductGrid";
 import { products as allProducts } from "../data/products";
 import { smartSearch } from "../utils/search";
 
-const Shop = ({ addToCart }) => {
+const Shop = ({ addToCart, wishlistItems = [], toggleWishlist }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const categoryParam = searchParams.get("category");
+  const sizeParam = searchParams.get("size");
   const searchQuery = searchParams.get("search") || "";
 
   const [selectedCategory, setSelectedCategory] = useState(
     categoryParam || "All",
   );
+  const [selectedSize, setSelectedSize] = useState(sizeParam || "All");
   const [priceRange, setPriceRange] = useState(300000);
 
   // Derive unique categories from data
@@ -22,14 +24,25 @@ const Shop = ({ addToCart }) => {
     [],
   );
 
+  // Standard sizes to filter by
+  const availableSizes = ["36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46"];
+
   // Sync state with URL param
   useEffect(() => {
     setSelectedCategory(categoryParam || "All");
-  }, [categoryParam]);
+    if (sizeParam) {
+      setSelectedSize(sizeParam);
+    }
+  }, [categoryParam, sizeParam]);
 
   const handleCategoryChange = (category) => {
     setSelectedCategory(category);
-    setSearchParams(category === "All" ? {} : { category });
+    setSearchParams(prev => {
+      const newParams = new URLSearchParams(prev);
+      if (category === "All") newParams.delete("category");
+      else newParams.set("category", category);
+      return newParams;
+    });
   };
 
   // Filter products based on category and price
@@ -44,13 +57,23 @@ const Shop = ({ addToCart }) => {
     // 2. Filter by Price
     result = result.filter((p) => p.price <= priceRange);
 
-    // 3. Smart Search (Deep & Fuzzy)
+    // 3. Filter by Size
+    if (selectedSize !== "All") {
+      result = result.filter((p) =>
+        // If product has "ALL" size, it matches ANY size.
+        // Otherwise check if it includes the specific size.
+        (p.sizes && p.sizes.includes("ALL")) ||
+        (p.sizes && p.sizes.includes(selectedSize))
+      );
+    }
+
+    // 4. Smart Search (Deep & Fuzzy)
     if (searchQuery) {
       result = smartSearch(result, searchQuery);
     }
 
     return result;
-  }, [selectedCategory, priceRange, searchQuery]);
+  }, [selectedCategory, priceRange, searchQuery, selectedSize]);
 
   return (
     <div className="flex flex-col md:flex-row gap-8 py-8 animate-fade-in">
@@ -62,11 +85,22 @@ const Shop = ({ addToCart }) => {
           onSelectCategory={handleCategoryChange}
           priceRange={priceRange}
           setPriceRange={setPriceRange}
+          sizes={availableSizes}
+          selectedSize={selectedSize}
+          onSelectSize={(size) => {
+            setSelectedSize(size);
+            setSearchParams(prev => {
+              const newParams = new URLSearchParams(prev);
+              if (size === "All") newParams.delete("size");
+              else newParams.set("size", size);
+              return newParams;
+            });
+          }}
         />
       </aside>
 
       {/* Main Grid */}
-      <div className="flex-grow">
+      <div className="flex-grow pt-8">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-2xl font-black text-white uppercase">
             {searchQuery
@@ -81,6 +115,9 @@ const Shop = ({ addToCart }) => {
           <ProductGrid
             products={filteredProducts}
             addToCart={addToCart}
+            wishlistItems={wishlistItems}
+            toggleWishlist={toggleWishlist}
+            preSelectedSize={selectedSize === "All" ? null : selectedSize}
             className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
           />
         ) : (
